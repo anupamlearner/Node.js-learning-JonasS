@@ -120,6 +120,23 @@ exports.protect = catchAsync(async (req, res, next) => {
 // This middleware restricts access based on user roles.
 // It takes role arguments and checks if the current user has any of those roles.
 
+/*
+//------------------ Method 1 without closure
+exports.restrictTo = (req, res, next) => {
+  // Hardcoding roles directly into the function
+  const allowedRoles = ["admin", "lead-guide"];
+
+  // Check if the current user's role matches any of the allowed roles
+  if (!allowedRoles.includes(req.user.role)) {
+    return next(new AppError("Not permitted", 403));
+  }
+
+  // If the user's role matches one of the allowed roles, grant access
+  next();
+};
+
+*/
+
 exports.restrictTo = (...allowedRoles) => {
   return (req, res, next) => {
     // The allowedRoles parameter is an array containing the "allowed roles",
