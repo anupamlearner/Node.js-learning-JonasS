@@ -120,14 +120,15 @@ exports.protect = catchAsync(async (req, res, next) => {
 // This middleware restricts access based on user roles.
 // It takes role arguments and checks if the current user has any of those roles.
 
-exports.restrictTo = (...roles) => {
+exports.restrictTo = (...allowedRoles) => {
   return (req, res, next) => {
-    // The roles parameter is an array containing the allowed roles, like ["admin", "lead-guide"].
-    // The roles are passed from the previous middleware in the chain.
+    // The allowedRoles parameter is an array containing the "allowed roles",
+    //like ["admin", "lead-guide"]. Defined in //tourRouter.js//
+    //The roles are passed from the previous middleware in the chain.
 
     // Check if the current user's role matches any of the allowed roles.
     // If the user's role is not in the roles array, access is denied.
-    if (!roles.includes(req.user.role)) {
+    if (!allowedRoles.includes(req.user.role)) {
       // If access is denied, it returns an error to the client with a status code of 403 (Forbidden).
       return next(new AppError("Not permitted", 403));
     }
