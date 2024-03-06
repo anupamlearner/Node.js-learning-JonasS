@@ -13,11 +13,14 @@ const app = require("./app");
 
 const DB = process.env.MDB.replace("<password>", process.env.MDB_PASS);
 mongoose
-  .connect(DB, {
-    useNewUrlParser: true,
+  .connect(
+    DB
+
+    //,{
+    //useNewUrlParser: true,
     // useCreateIndex: true,
-    // useFindAndModify: true,
-  })
+    // useFindAndModify: true,}
+  )
   .then(() => console.log("----> DB Connection Successful"));
 
 console.log("The environment is--->", app.get("env"));
