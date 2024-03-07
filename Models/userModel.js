@@ -48,6 +48,7 @@ const userSchema = new mongoose.Schema({
   passwordResetTokenExpires: Date,
 });
 
+// ---- middlewares --------------//
 userSchema.pre("save", async function (next) {
   // Only runs this function if password was actually changed
   if (!this.isModified("password")) return next();
@@ -57,6 +58,13 @@ userSchema.pre("save", async function (next) {
   this.passwordConfirm = undefined;
   next();
 });
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password") || this.isNew) return next();
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+// ---- middlewares --------------//
 
 // INSTANCE METHOD
 // Method to check if the provided password (sample) matches the stored hashed password (real)

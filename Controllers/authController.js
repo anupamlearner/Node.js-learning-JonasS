@@ -5,6 +5,7 @@ const catchAsync = require("./../utils/catchAsync");
 const jwt = require("jsonwebtoken");
 const AppError = require("./../utils/appError");
 const sendEmail = require("./../utils/email");
+const crypto = require("crypto");
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -58,16 +59,16 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError("Please provide email and password", 400));
   }
   // Check if user exists && password is correct
-  const userResult = await userModel.findOne({ email }).select("+password");
+  const foundUser = await userModel.findOne({ email }).select("+password");
 
   if (
-    !userResult ||
-    !(await userResult.correctPassword(password, userResult.password))
+    !foundUser ||
+    !(await foundUser.correctPassword(password, foundUser.password))
   ) {
     return next(new AppError("Incorrect email or password", 401)); // Corrected the position of the status code
   }
   // If all ok, send token to the client
-  const token = signToken(userResult._id);
+  const token = signToken(foundUser._id);
   res.status(200).json({
     status: "success",
     token,
@@ -96,24 +97,23 @@ exports.protect = catchAsync(async (req, res, next) => {
   // this syntax is used to convert jwt.verify into a Promise-based function,then
   // immediately invoke the function returned by promisify with the provided args.
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  console.log(decoded);
 
   // 3) Check if user still exists
-  const userResult = await userModel.findById(decoded.id);
-  if (!userResult) {
+  const foundUser = await userModel.findById(decoded.id);
+  if (!foundUser) {
     return next(
       new AppError("The user belonging to this token does not exist", 401)
     );
   }
 
   // 4) Check if the user changed password after JWT was issued
-  if (userResult.changedPasswordAfter(decoded.iat)) {
+  if (foundUser.changedPasswordAfter(decoded.iat)) {
     return next(
       new AppError("User recently changed password! Please login again", 401)
     );
   }
   // 5) Grant access to protectd route
-  req.user = userResult;
+  req.user = foundUser;
   next();
 });
 
@@ -162,14 +162,14 @@ exports.restrictTo = (...allowedRoles) => {
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   // Get user based on POST email
-  const userResult = await userModel.findOne({ email: req.body.email });
-  if (!userResult) {
+  const foundUser = await userModel.findOne({ email: req.body.email });
+  if (!foundUser) {
     return next(new AppError("User not found", 404));
   }
 
   // Generate the random RESET token
-  const resetToken = userResult.createPasswordResetToken();
-  await userResult.save({ validateBeforeSave: false });
+  const resetToken = foundUser.createPasswordResetToken();
+  await foundUser.save({ validateBeforeSave: false });
 
   // Send it to user's Email
   const resetURL = `${req.protocol}://${req.get(
@@ -188,13 +188,43 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
       message: "Token sent to email",
     });
   } catch (err) {
-    (userResult.passwordResetToken = undefined),
-      (userResult.passwordResetTokenExpires = undefined);
-    await userResult.save({ validateBeforeSave: false });
+    (foundUser.passwordResetToken = undefined),
+      (foundUser.passwordResetTokenExpires = undefined);
+    await foundUser.save({ validateBeforeSave: false });
     return next(
       new AppError("There was an error sending the email. Try again later", 500)
     );
   }
 });
 
-exports.resetPassword = (req, res, next) => {};
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  // 1 Get user based on the token
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  const foundUser = await userModel.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetTokenExpires: { $gt: Date.now() },
+  });
+
+  // 2 If token has not expired and there is a user, set the new password
+  if (!foundUser) {
+    return next(new AppError("Token is invalid or has expired", 400));
+  }
+
+  // 3 Update changedPasswordAt property in the DB
+  foundUser.password = req.body.password;
+  foundUser.passwordConfirm = req.body.passwordConfirm;
+  foundUser.passwordResetToken = undefined;
+  foundUser.passwordResetTokenExpires = undefined;
+  await foundUser.save();
+
+  // Log the user in , send JWT
+  const token = signToken(foundUser._id);
+  res.status(200).json({
+    status: "success",
+    token,
+  });
+});
