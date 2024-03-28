@@ -2,8 +2,9 @@ const express = require("express"); // Importing express library
 const morgan = require("morgan"); // Importing morgan library for logging
 const rateLimit = require("express-rate-limit"); // Importing rate-limiting middleware
 const helmet = require("helmet"); // Importing helmet for security headers
-const mongoSanitize = require("express-mongo-sanitize"); //Importing mongo-sanitize for data sanitization
-const xss = require("xss-clean"); // Importing
+const mongoSanitize = require("express-mongo-sanitize"); // Importing mongo-sanitize for data sanitization
+const xss = require("xss-clean"); // Importing xss-clean for preventing XSS attacks
+const hpp = require("hpp"); // Importing hpp for preventing parameter pollution
 
 const errorHandler = require("./Controllers/errorController"); // Importing error handling controller
 const AppError = require("./utils/appError"); // Importing custom error class
@@ -33,8 +34,25 @@ if (process.env.NODE_ENV === "development") {
 app.use(express.json()); // Parsing JSON request bodies
 app.use(express.static(`${__dirname}/public`)); // Serving static files from the 'public' directory
 
-// Data sanitazitation against NoSQL query injection
+// Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
+
+// Data sanitization against XSS
+app.use(xss());
+
+// Prevent parameter pollution
+app.use(
+  hpp({
+    whitelist: [
+      "difficulty",
+      "duration",
+      "maxGroupSize",
+      "price",
+      "ratingsAverage",
+      "ratingsQuantity",
+    ],
+  })
+);
 
 // Middleware to add request time to request object
 app.use((req, res, next) => {
