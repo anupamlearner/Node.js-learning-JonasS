@@ -5,20 +5,24 @@ const Tour = require("./../../Models/tourModel");
 
 dotenv.config({ path: `${__dirname}/../../.env` });
 
-const DB = process.env.MDB.replace("<password>", process.env.MDB_PASS);
+const app = require("./../../app");
 
+const DB = process.env.MDB.replace("<password>", process.env.MDB_PASS);
 mongoose
-  .connect(DB, {
-    useNewUrlParser: true,
+  .connect(
+    DB
+
+    //,{
+    //useNewUrlParser: true,
     // useCreateIndex: true,
-    // useFindAndModify: true,
-  })
+    // useFindAndModify: true,}
+  )
   .then(() => console.log("----> DB Connection Successful"));
 
+console.log("The environment is--->", app.get("env"));
+
 //   Read JSON File
-const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/tours-simple.json`, "utf-8")
-);
+const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, "utf-8"));
 
 // Import Data into DB
 const importData = async () => {
