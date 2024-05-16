@@ -121,6 +121,17 @@ const tourSchema = new mongoose.Schema(
     guides: [
       {
         type: mongoose.Schema.ObjectId,
+        // reference to another model
+        //NOTE:
+        //When using the --ref-- property in Mongoose schema definitions,
+        //it expects the exact name of the model you're referencing.
+        //So, if your model is defined with mongoose.model("BillBob", userSchema),
+        //you should reference it in other schemas or code using "BillBob".
+        /*
+        The name inside the mongoose.model() function, 
+        which is the first argument, must match exactly when referencing it
+         in other parts of your code, such as schema definitions or queries
+         */
         ref: "User",
       },
     ],
@@ -133,18 +144,71 @@ const tourSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+/* ------------------------------------------------------------ */
 
 tourSchema.virtual("durationWeeks").get(function () {
   return this.duration / 7;
 });
 
+/* --------------------------------- */
+// Document Middleware
+// Runs before .save() and .create()
+/* --------------------------------- */
+tourSchema.pre("save", function (next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+/* 
+/ Define a function to fetch a guide object by its ID
+async function fetchGuideById(guideId) {
+  return await Guide.findById(guideId);
+}
+
+// Define the pre-save middleware function
+tourSchema.pre('save', async function preSave(next) {
+  try {
+    // Fetch all potential guide objects using their IDs
+    const potentialGuides = await Promise.all(this.guides.map(fetchGuideById));
+
+    // Replace the IDs in the 'guides' array with the fetched guide objects
+    this.guides = potentialGuides;
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+*/
+
+/* --------------------------------- */
+// Query Middleware
+/* --------------------------------- */
 tourSchema.pre(/^find/, function (next) {
+  this.find({ secretTour: { $ne: true } });
   this.start = Date.now();
+  next();
+});
+
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "guides",
+    select: "-__v -passwordChangedAt",
+  });
   next();
 });
 
 tourSchema.post(/^find/, function (docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds`);
+  next();
+});
+
+// Aggregation Middleware
+tourSchema.pre("aggregate", function (next) {
+  this.pipeline().unshift({
+    $match: { secretTour: { $new: true } },
+  });
+  console.log(this.pipeline);
   next();
 });
 
