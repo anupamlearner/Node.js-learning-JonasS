@@ -79,7 +79,7 @@ const tourSchema = new mongoose.Schema(
 
     createdAt: {
       type: Date,
-      default: Date.now(),
+      default: Date.now,
       // select false hides this from the output
       select: false,
     },
@@ -212,6 +212,6 @@ tourSchema.pre("aggregate", function (next) {
   next();
 });
 
-const tourModel = mongoose.model("Tour", tourSchema);
+const tourModel = mongoose.model("tour", tourSchema);
 
 module.exports = tourModel;
