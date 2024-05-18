@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const reviewSchema = new mongoose.Schema(
   {
-    rewview: {
+    review: {
       type: "string",
       required: [true, "Review name cannot be empty"],
     },
@@ -32,6 +32,13 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
+reviewSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "tour",
+    select: "name",
+  });
+  next();
+});
 const reviewModel = mongoose.model("Review", reviewSchema);
 
 module.exports = reviewModel;
