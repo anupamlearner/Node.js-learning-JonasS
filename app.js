@@ -10,7 +10,7 @@ const errorHandler = require("./Controllers/errorController"); // Importing erro
 const AppError = require("./utils/appError"); // Importing custom error class
 const tourRoutes = require("./Routes/tourRoutes"); // Importing tour routes
 const userRoutes = require("./Routes/userRoutes"); // Importing user routes
-
+const reviewRoutes = require("./Routes/reviewRoutes"); // Importing review routes
 const app = express(); // Creating express application
 
 // Set Security HTTP Header
@@ -63,6 +63,7 @@ app.use((req, res, next) => {
 // Routes
 app.use("/api/v1/tours", tourRoutes); // Using tour routes
 app.use("/api/v1/users", userRoutes); // Using user routes
+app.use("/api/v1/reviews", reviewRoutes); // Using review routes
 
 // Handling unhandled routes
 app.all("*", (req, res, next) => {

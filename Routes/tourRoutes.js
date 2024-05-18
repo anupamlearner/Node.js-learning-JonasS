@@ -17,12 +17,20 @@ router.route("/tour-stats").get(tourController.getTourStats);
 router
   .route("/")
   .get(authController.protect, tourController.getAllTours)
-  .post(tourController.createTour);
+  .post(
+    authController.protect,
+    authController.restrictTo("admin", "lead-guide"),
+    tourController.createTour
+  );
 
 router
   .route("/:id")
   .get(tourController.getTour) // Route to get a specific tour
-  .patch(tourController.updateTour) // Route to update a specific tour
+  .patch(
+    authController.protect,
+    authController.restrictTo("admin", "lead-guide"),
+    tourController.updateTour
+  ) // Route to update a specific tour
   .delete(
     // Middleware to ensure user is authenticated and retrieve user information
     authController.protect,
