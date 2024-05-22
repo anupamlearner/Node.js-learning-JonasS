@@ -60,7 +60,7 @@ app.use((req, res, next) => {
   next(); // Move to the next middleware
 });
 
-// Routes
+// Routes (mounting routers)
 app.use("/api/v1/tours", tourRoutes); // Using tour routes
 app.use("/api/v1/users", userRoutes); // Using user routes
 app.use("/api/v1/reviews", reviewRoutes); // Using review routes

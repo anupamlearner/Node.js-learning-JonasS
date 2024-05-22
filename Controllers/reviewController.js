@@ -53,6 +53,10 @@ exports.getReview = catchAsync(async (req, res, next) => {
 
 // Create a new review based on the provided data
 exports.createReview = catchAsync(async (req, res, next) => {
+  // Allow nested routes
+  if (!req.body.tour) req.body.tour = req.params.tourId;
+  if (!req.body.user) req.body.user = req.user.id;
+
   const newReviewData = await reviewModel.create(req.body);
   // Send a successful response with the new review data
   res.status(201).json({

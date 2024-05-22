@@ -1,11 +1,18 @@
 const express = require("express");
 const router = express.Router();
-// const tourController = require("../Controllers/tourController");
+
 const tourController = require("../Controllers/v2tourController");
 const authController = require("../Controllers/authController");
-
+const reviewRouter = require("./../Routes/reviewRoutes");
 // router.param("id", tourController.checkId);
 // router.param("id", tourController.checkBody);
+
+// ------------------------------------------------
+// Mount the review router as a child router
+//POST /tour/234as9du9/reviews
+//GET /tour/234as9du9/reviews
+router.use("/:tourId/reviews", reviewRouter);
+// ------------------------------------------------
 
 // Top 5 Affordable tours
 router
