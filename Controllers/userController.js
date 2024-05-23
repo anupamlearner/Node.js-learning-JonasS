@@ -21,6 +21,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
   });
 });
 
+// for the user to update thier data
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Create error if user POSTs password data
   if (req.body.password || req.body.passwordConfirm) {
@@ -32,7 +33,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     );
   }
 
-  // Filter out unwanted fields names that are not allowed to be updated
+  // 1 - B Filter out unwanted fields names that are not allowed to be updated
   const filteredBody = filterObj(req.body, "name", "email");
 
   // 2) Update user document
@@ -50,6 +51,14 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     data: {
       user: updatedUser,
     },
+  });
+});
+
+exports.deleteMe = catchAsync(async (req, res, next) => {
+  await userModel.findByIdAndUpdate(req.user.id, { active: false });
+  res.status(204).json({
+    status: "success",
+    data: null,
   });
 });
 
@@ -71,4 +80,5 @@ exports.updateUser = (req, res) => {
     message: "This route is not yet defined",
   });
 };
+
 exports.deleteUser = factory.deleteOne(userModel);
