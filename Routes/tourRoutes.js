@@ -39,7 +39,7 @@ router
     tourController.updateTour
   ) // Route to update a specific tour
   .delete(
-    // Middleware to ensure user is authenticated and retrieve user information
+    // Middleware to ensure user is authenticated and delete tour information
     authController.protect,
     // Specify who gets to delete stuff
     authController.restrictTo("admin", "lead-guide"),

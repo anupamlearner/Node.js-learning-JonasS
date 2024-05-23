@@ -2,6 +2,7 @@ const tourModel = require("./../Models/tourModel");
 const APIFeatures = require("./../utils/v2APIFeatures");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
+const factory = require("./handlerFactory");
 
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = "5";
@@ -57,6 +58,7 @@ exports.getTour = catchAsync(async (req, res, next) => {
     data: { tourResults },
   });
 });
+
 // Create a new tour based on the provided data
 exports.createTour = catchAsync(async (req, res, next) => {
   const newTourData = await tourModel.create(req.body);
@@ -89,7 +91,10 @@ exports.updateTour = catchAsync(async (req, res, next) => {
 });
 
 // Delete a specific tour by its ID
-exports.deleteTour = catchAsync(async (req, res, next) => {
+
+exports.deleteTour = factory.deleteOne(tourModel);
+
+/* exports.deleteTour = catchAsync(async (req, res, next) => {
   // Find and delete a tour in the database by its ID
   const tourResults = await tourModel.findByIdAndDelete(req.params.id);
 
@@ -101,7 +106,7 @@ exports.deleteTour = catchAsync(async (req, res, next) => {
     status: "Deleted",
     data: null,
   });
-});
+}); */
 
 // ... (other controller methods)
 
