@@ -4,8 +4,13 @@ const catchAsync = require("./../utils/catchAsync");
 const appError = require("./../utils/appError");
 
 exports.getAllReviews = catchAsync(async (req, res, next) => {
+  let filter = {};
+  if (req.params.tourId) filter = { tour: req.params.tourId };
   // Execute Query
-  const reviewQueryHandler = new APIFeatures(reviewModel.find(), req.query)
+  const reviewQueryHandler = new APIFeatures(
+    reviewModel.find(filter),
+    req.query
+  )
     .filter()
     .sort()
     .limitFields()

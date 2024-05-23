@@ -11,6 +11,7 @@ const reviewController = require("./../Controllers/reviewController");
 const authController = require("./../Controllers/authController");
 
 //POST /tour/234as9du9/reviews
+//GET /tour/234as9du9/reviews
 //POST /reviews
 
 //  Routes
