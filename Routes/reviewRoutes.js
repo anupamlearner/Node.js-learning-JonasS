@@ -21,16 +21,20 @@ router
   .post(
     authController.protect,
     authController.restrictTo("user"),
+    reviewController.setTourUserIds,
     reviewController.createReview
   );
 
-router.route("/:id").get(reviewController.getReview); // Route to get a specific review
-router.route("/:id").delete(
-  // Middleware to ensure user is authenticated and delete tour information
-  authController.protect,
-  // Specify who gets to delete stuff
-  authController.restrictTo("admin", "lead-guide"),
-  reviewController.deleteReview
-); // Route to get a specific review
+router
+  .route("/:id")
+  .get(reviewController.getReview) // Route to get a specific review
+  .patch(reviewController.updateReview)
+  .delete(
+    // Middleware to ensure user is authenticated and delete tour information
+    authController.protect,
+    // Specify who gets to delete stuff
+    authController.restrictTo("admin", "lead-guide"),
+    reviewController.deleteReview
+  ); // Route to get a specific review
 
 module.exports = router;

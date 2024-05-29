@@ -1,7 +1,7 @@
 const tourModel = require("./../Models/tourModel");
-const APIFeatures = require("./../utils/v2APIFeatures");
+
 const catchAsync = require("./../utils/catchAsync");
-const AppError = require("./../utils/appError");
+// const AppError = require("./../utils/appError");
 const factory = require("./handlerFactory");
 
 exports.aliasTopTours = (req, res, next) => {
@@ -11,104 +11,11 @@ exports.aliasTopTours = (req, res, next) => {
   next();
 };
 
-exports.getAllTours = catchAsync(async (req, res, next) => {
-  // Execute Query
-  const tourQueryHandler = new APIFeatures(tourModel.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-  const tourResults = await tourQueryHandler.execute();
-
-  // Check if data is empty
-  if (
-    !tourResults ||
-    (Array.isArray(tourResults) && tourResults.length === 0)
-  ) {
-    return res.status(200).json({
-      status: "failed",
-      message: "No data found",
-    });
-  }
-
-  // Send Response
-  res.status(200).json({
-    status: "success",
-    results: tourResults.length,
-    data: {
-      tours: tourResults,
-    },
-  });
-});
-
-// Get a specific tour by its ID
-exports.getTour = catchAsync(async (req, res, next) => {
-  // Find a tour in the database by its ID
-  const tourResults = await tourModel
-    .findById(req.params.id)
-    .populate("reviews");
-
-  if (!tourResults) {
-    return next(new AppError("No tour found with that ID", 404));
-  }
-  // Send a successful response with the tour result
-  res.status(200).json({
-    status: "Success",
-    results: tourResults.length,
-    data: { tourResults },
-  });
-});
-
-// Create a new tour based on the provided data
-exports.createTour = catchAsync(async (req, res, next) => {
-  const newTourData = await tourModel.create(req.body);
-  // Send a successful response with the new tour data
-  res.status(201).json({
-    status: "Success",
-    data: newTourData,
-  });
-});
-
-// Update a specific tour by its ID with new data
-exports.updateTour = catchAsync(async (req, res, next) => {
-  // Find and update a tour in the database by its ID with the new data
-  const updatedTour = await tourModel.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
-  if (!updatedTour) {
-    return next(new AppError("No tour found with that ID", 404));
-  }
-  // Send a successful response with the updated tour data
-  res.status(200).json({
-    status: "Success",
-    data: updatedTour,
-  });
-});
-
-// Delete a specific tour by its ID
-
+exports.getAllTours = factory.getAll(tourModel);
+exports.getTour = factory.getOne(tourModel, { path: "reviews" });
+exports.createTour = factory.createOne(tourModel);
+exports.updateTour = factory.updateOne(tourModel);
 exports.deleteTour = factory.deleteOne(tourModel);
-
-/* exports.deleteTour = catchAsync(async (req, res, next) => {
-  // Find and delete a tour in the database by its ID
-  const tourResults = await tourModel.findByIdAndDelete(req.params.id);
-
-  if (!tourResults) {
-    return next(new AppError("No tour found with that ID", 404));
-  }
-  // Send a response indicating the successful deletion
-  res.status(204).json({
-    status: "Deleted",
-    data: null,
-  });
-}); */
-
-// ... (other controller methods)
 
 exports.getTourStats = catchAsync(async (req, res, next) => {
   const stats = await tourModel.aggregate([
@@ -139,6 +46,52 @@ exports.getTourStats = catchAsync(async (req, res, next) => {
     status: "Success",
     data: {
       stats,
+    },
+  });
+});
+
+exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
+  const year = req.params.year * 1; // 2021
+
+  const plan = await Tour.aggregate([
+    {
+      $unwind: "$startDates",
+    },
+    {
+      $match: {
+        startDates: {
+          $gte: new Date(`${year}-01-01`),
+          $lte: new Date(`${year}-12-31`),
+        },
+      },
+    },
+    {
+      $group: {
+        _id: { $month: "$startDates" },
+        numTourStarts: { $sum: 1 },
+        tours: { $push: "$name" },
+      },
+    },
+    {
+      $addFields: { month: "$_id" },
+    },
+    {
+      $project: {
+        _id: 0,
+      },
+    },
+    {
+      $sort: { numTourStarts: -1 },
+    },
+    {
+      $limit: 12,
+    },
+  ]);
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      plan,
     },
   });
 });
