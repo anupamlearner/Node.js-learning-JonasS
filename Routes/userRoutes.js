@@ -8,16 +8,18 @@ router.post("/login", authController.login);
 
 router.post("/forgotPassword", authController.forgotPassword);
 router.patch("/resetPassword/:token", authController.resetPassword);
-router.patch(
-  "/updateMyPassword",
-  authController.protect,
-  authController.updateMyPassword
-);
 
-router.patch("/updateMe", authController.protect, userController.updateMe);
-router.delete("/deleteMe", authController.protect, userController.deleteMe);
+//Use middleware for all router after this
+router.use(authController.protect);
 
-// User Routes
+router.patch("/updateMyPassword", authController.updateMyPassword);
+router.get("/me", userController.getMe, userController.getUser);
+router.patch("/updateMe", userController.updateMe);
+router.delete("/deleteMe", userController.deleteMe);
+
+router.use(authController.restrictTo("admin"));
+
+// For admins only
 router
   .route("/")
   .get(userController.getAllUsers)

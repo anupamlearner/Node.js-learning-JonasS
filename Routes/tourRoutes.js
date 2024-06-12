@@ -20,6 +20,7 @@ router
   .get(tourController.aliasTopTours, tourController.getAllTours);
 
 router.route("/tour-stats").get(tourController.getTourStats);
+
 router
   .route("/monthly-plan/:year")
   .get(
@@ -30,7 +31,7 @@ router
 //  Routes
 router
   .route("/")
-  .get(authController.protect, tourController.getAllTours)
+  .get(tourController.getAllTours)
   .post(
     authController.protect,
     authController.restrictTo("admin", "lead-guide"),

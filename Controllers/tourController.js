@@ -20,15 +20,14 @@ exports.deleteTour = factory.deleteOne(tourModel);
 exports.getTourStats = catchAsync(async (req, res, next) => {
   const stats = await tourModel.aggregate([
     {
-      $match: { ratingsAverage: { $gte: 1 } },
+      $match: { ratingsAverage: { $gte: 4.5 } },
     },
     {
       $group: {
         _id: { $toUpper: "$difficulty" },
-
         totalTours: { $sum: 1 },
         numRatings: { $sum: "$ratingsQuantity" },
-        avgRaring: { $avg: "$ratingsAverage" },
+        avgRating: { $avg: "$ratingsAverage" },
         avgPrice: { $avg: "$price" },
         minPrice: { $min: "$price" },
         maxPrice: { $max: "$price" },
@@ -53,7 +52,7 @@ exports.getTourStats = catchAsync(async (req, res, next) => {
 exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
   const year = req.params.year * 1; // 2021
 
-  const plan = await Tour.aggregate([
+  const plan = await tourModel.aggregate([
     {
       $unwind: "$startDates",
     },

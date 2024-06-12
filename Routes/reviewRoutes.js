@@ -10,16 +10,13 @@ const router = express.Router({ mergeParams: true });
 const reviewController = require("./../Controllers/reviewController");
 const authController = require("./../Controllers/authController");
 
-//POST /tour/234as9du9/reviews
-//GET /tour/234as9du9/reviews
-//POST /reviews
+router.use(authController.protect);
 
 //  Routes
 router
   .route("/")
-  .get(authController.protect, reviewController.getAllReviews)
+  .get(reviewController.getAllReviews)
   .post(
-    authController.protect,
     authController.restrictTo("user"),
     reviewController.setTourUserIds,
     reviewController.createReview
@@ -27,14 +24,15 @@ router
 
 router
   .route("/:id")
-  .get(reviewController.getReview) // Route to get a specific review
-  .patch(reviewController.updateReview)
+  .get(reviewController.getReview)
+  .patch(
+    authController.restrictTo("user", "admin"),
+    reviewController.updateReview
+  )
   .delete(
-    // Middleware to ensure user is authenticated and delete tour information
-    authController.protect,
     // Specify who gets to delete stuff
-    authController.restrictTo("admin", "lead-guide"),
+    authController.restrictTo("admin", "user"),
     reviewController.deleteReview
-  ); // Route to get a specific review
+  );
 
 module.exports = router;
