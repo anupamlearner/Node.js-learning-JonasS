@@ -40,18 +40,18 @@ router
 
 router
   .route("/:id")
-  .get(tourController.getTour) // Route to get a specific tour
+  .get(tourController.getTour)
   .patch(
     authController.protect,
     authController.restrictTo("admin", "lead-guide"),
     tourController.updateTour
-  ) // Route to update a specific tour
+  )
   .delete(
-    // Middleware to ensure user is authenticated and delete tour information
+    // Middleware to ensure user is authenticated
     authController.protect,
     // Specify who gets to delete stuff
     authController.restrictTo("admin", "lead-guide"),
-    tourController.deleteTour // Route handler to delete a tour
+    tourController.deleteTour
   );
 
 module.exports = router;
