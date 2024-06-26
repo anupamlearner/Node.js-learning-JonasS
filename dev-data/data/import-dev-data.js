@@ -1,7 +1,9 @@
 const fs = require("fs");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-const Tour = require("./../../Models/tourModel");
+const tourModel = require("./../../Models/tourModel");
+const reviewModel = require("./../../Models/reviewModel");
+const userModel = require("./../../Models/userModel");
 
 dotenv.config({ path: `${__dirname}/../../.env` });
 
@@ -23,11 +25,17 @@ console.log("The environment is--->", app.get("env"));
 
 //   Read JSON File
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, "utf-8"));
+const users = JSON.parse(fs.readFileSync(`${__dirname}/users.json`, "utf-8"));
+const reviews = JSON.parse(
+  fs.readFileSync(`${__dirname}/reviews.json`, "utf-8")
+);
 
 // Import Data into DB
 const importData = async () => {
   try {
-    await Tour.create(tours);
+    await tourModel.create(tours);
+    await userModel.create(users, { validateBeforeSave: false });
+    await reviewModel.create(reviews);
     console.log("Data successfully loaded");
     process.exit();
   } catch (err) {
@@ -38,7 +46,9 @@ const importData = async () => {
 // Delete all Data from collection
 const deleteData = async () => {
   try {
-    await Tour.deleteMany();
+    await tourModel.deleteMany();
+    await userModel.deleteMany();
+    await reviewModel.deleteMany();
     console.log("data successfully deleted");
     process.exit();
   } catch (err) {

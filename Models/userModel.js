@@ -75,6 +75,7 @@ userSchema.pre(/^find/, function (next) {
   this.find({ active: { $ne: false } });
   next();
 });
+
 // ---- middlewares --------------//
 
 // INSTANCE METHOD
