@@ -56,7 +56,7 @@ reviewSchema.pre(/^find/, function (next) {
 
 // Assign a function to the "statics" object of our reviewSchema
 reviewSchema.statics.calcAverageRatings = async function (tourId) {
-  console.log(tourId);
+  console.log(tourId.toString());
   const stats = await this.aggregate([
     {
       $match: { tour: tourId },
@@ -69,7 +69,7 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
       },
     },
   ]);
-  console.log(stats);
+  // console.log(stats);
   // save the statics to the current tour
   await tourModel.findByIdAndUpdate(tourId, {
     ratingsQuantity: stats[0].nRatings,
@@ -78,10 +78,13 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
 };
 
 // call the "calcAverageRatings" fxn after a new review has been created
-reviewSchema.post("save", function name(next) {
+reviewSchema.post("save", function name() {
   // "this" points to current review
   this.constructor.calcAverageRatings(this.tour);
 });
+
+// findByIdAndUpdate
+// findByIdAndDelete
 
 const reviewModel = mongoose.model("Review", reviewSchema);
 
