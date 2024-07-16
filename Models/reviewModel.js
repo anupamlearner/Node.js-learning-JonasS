@@ -77,7 +77,7 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
   });
 };
 
-// call the above "calcAverageRatings" fxn after a new review has been created
+// call the "calcAverageRatings" fxn after a new review has been created
 reviewSchema.post("save", function name(next) {
   // "this" points to current review
   this.constructor.calcAverageRatings(this.tour);
