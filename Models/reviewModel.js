@@ -56,7 +56,7 @@ reviewSchema.pre(/^find/, function (next) {
 
 // Assign a function to the "statics" object of our reviewSchema
 reviewSchema.statics.calcAverageRatings = async function (tourId) {
-  console.log(tourId.toString());
+  console.log(tourId);
   const stats = await this.aggregate([
     {
       $match: { tour: tourId },
