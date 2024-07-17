@@ -56,7 +56,7 @@ reviewSchema.pre(/^find/, function (next) {
 
 // Assign a function to the "statics" object of our reviewSchema
 reviewSchema.statics.calcAverageRatings = async function (tourId) {
-  console.log(tourId);
+  // console.log(tourId);
   const stats = await this.aggregate([
     {
       $match: { tour: tourId },
@@ -71,10 +71,17 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
   ]);
   // console.log(stats);
   // save the statics to the current tour
-  await tourModel.findByIdAndUpdate(tourId, {
-    ratingsQuantity: stats[0].nRatings,
-    ratingsAverage: stats[0].avgRating,
-  });
+  if (stats.length > 0) {
+    await tourModel.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0].nRatings,
+      ratingsAverage: stats[0].avgRating,
+    });
+  } else {
+    await tourModel.findByIdAndUpdate(tourId, {
+      ratingsQuantity: 0,
+      ratingsAverage: 4.5, // default value if no ratings are available
+    });
+  }
 };
 
 // call the "calcAverageRatings" fxn after a new review has been created
@@ -83,8 +90,12 @@ reviewSchema.post("save", function name() {
   this.constructor.calcAverageRatings(this.tour);
 });
 
-// findByIdAndUpdate
-// findByIdAndDelete
+// Handle updates and deletions of reviews
+reviewSchema.post(/^findOneAnd/, async function (reviewDoc) {
+  if (reviewDoc) {
+    await reviewDoc.constructor.calcAverageRatings(reviewDoc.tour);
+  }
+});
 
 const reviewModel = mongoose.model("Review", reviewSchema);
 
