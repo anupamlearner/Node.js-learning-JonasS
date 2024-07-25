@@ -147,10 +147,23 @@ const tourSchema = new mongoose.Schema(
   }
 );
 /* ------------------------------------------------------------ */
-
-// tourSchema.index({ price: 1 });
+// INDEXES
+// Create a compound index in MongoDB: price ascending, ratingsAverage descending.
 tourSchema.index({ price: 1, ratingsAverage: -1 });
+
+// Create a unique index in MongoDB for fast querying by slug.
 tourSchema.index({ slug: 1 });
+
+// NOTE: Example of using slugs in URLs:
+// A tour with the slug 'sea-surfer' can be accessed via:
+// https://example.com/tours/sea-surfer
+
+// Contrast with less friendly example:
+// Instead of: https://example.com/tours/a56ha8s71234149shs8d
+// Slugs like 'sea-surfer' are user-friendly identifiers improving URL readability.
+// MongoDB's unique index on the 'slug' field ensures efficient retrieval of documents based on these identifiers.
+
+/* ------------------------------------------------------------ */
 
 tourSchema.virtual("durationWeeks").get(function () {
   return this.duration / 7;
