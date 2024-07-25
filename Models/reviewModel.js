@@ -83,16 +83,33 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
     });
   }
 };
-
 // call the "calcAverageRatings" fxn after a new review has been created
 reviewSchema.post("save", function name() {
   // "this" points to current review
   this.constructor.calcAverageRatings(this.tour);
 });
 
+/* ------------------------------------------------------------------ */
 // Handle updates and deletions of reviews
+/* ------------------------------------------------------------------ */
+/*
 reviewSchema.post(/^findOneAnd/, async function (reviewDoc) {
   if (reviewDoc) {
+    await reviewDoc.constructor.calcAverageRatings(reviewDoc.tour);
+  }
+});*/
+
+// Define a post middleware function for Mongoose that runs after any "findOneAnd" operation
+reviewSchema.post(/^findOneAnd/, async function (reviewDoc) {
+  // NOTE: Mongoose automatically passes the modified document as `reviewDoc` to this function
+  // No need to manually pass data between middlewares, simplifying the code flow
+  // You can directly work with `reviewDoc` here instead of passing it from a pre middleware
+
+  // Check if `reviewDoc` exists (not null or undefined)
+  if (reviewDoc) {
+    // Call a static method `calcAverageRatings` on the model of the document
+    // `reviewDoc.constructor` refers to the model (collection) that the document belongs to
+    // `reviewDoc.tour` is passed as an argument to `calcAverageRatings`
     await reviewDoc.constructor.calcAverageRatings(reviewDoc.tour);
   }
 });
