@@ -101,7 +101,7 @@ const tourSchema = new mongoose.Schema(
         default: "Point",
         enum: ["Point"],
       },
-      // In GeoJSON strangely we have longitude 1st and latitude 2nd.
+      // WARNING: In GeoJSON strangely we have longitude 1st and latitude 2nd.
       coordinates: [Number],
       address: String,
       description: String,
@@ -146,6 +146,7 @@ const tourSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+
 /* ------------------------------------------------------------ */
 // INDEXES
 // Create a compound index in MongoDB: price ascending, ratingsAverage descending.
