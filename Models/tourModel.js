@@ -155,6 +155,9 @@ tourSchema.index({ price: 1, ratingsAverage: -1 });
 // Create a unique index in MongoDB for fast querying by slug.
 tourSchema.index({ slug: 1 });
 
+// Create a 2dsphere index in MongoDB for geospatial queries on startLocation.
+tourSchema.index({ startLocation: "2dsphere" });
+
 // NOTE: Example of using slugs in URLs:
 // A tour with the slug 'sea-surfer' can be accessed via:
 // https://example.com/tours/sea-surfer
