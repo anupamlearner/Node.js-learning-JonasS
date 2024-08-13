@@ -118,3 +118,7 @@ exports.getToursWithin = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.getDistance = catchAsync(async (req, res, next) => {
+  const { latLong, unit } = req.params;
+});
