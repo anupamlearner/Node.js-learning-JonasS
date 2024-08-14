@@ -233,11 +233,62 @@ tourSchema.post(/^find/, function (docs, next) {
 });
 
 // Aggregation Middleware
+/* tourSchema.pre("aggregate", function (next) {
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+  console.log(this.pipeline());
+  next();
+});
+ */
+//-------------------------------------------------------------------
+// This code runs before the aggregation operation starts.
+// It allows us to modify the aggregation pipeline
+//(a series of stages in MongoDB) before it executes.
+
 tourSchema.pre("aggregate", function (next) {
-  this.pipeline().unshift({
-    $match: { secretTour: { $ne: true } },
-  });
-  console.log(this.pipeline);
+  // Get the current pipeline (a list of stages)
+  // that will be used in the aggregation operation.
+  const pipeline = this.pipeline();
+  console.log("Original Pipeline:", pipeline);
+
+  // Look for a stage that uses the $geoNear operator,
+  // which is used for geo-spatial queries.
+  const geoNearStage = pipeline.find(
+    (stage) => Object.keys(stage)[0] === "$geoNear"
+  );
+
+  if (geoNearStage) {
+    // If $geoNear is found, make sure it is the first stage in the pipeline.
+    if (pipeline.indexOf(geoNearStage) !== 0) {
+      // Remove $geoNear from its current position.
+      pipeline.splice(pipeline.indexOf(geoNearStage), 1);
+      // Add $geoNear to the beginning of the pipeline.
+      pipeline.unshift(geoNearStage);
+    }
+
+    // Check if the second stage is not $match.
+    if (pipeline[1] && Object.keys(pipeline[1])[0] !== "$match") {
+      // Insert $match as the second stage to filter out secret tours.
+      pipeline.splice(1, 0, { $match: { secretTour: { $ne: true } } });
+    } else if (!pipeline[1]) {
+      // If there is no second stage, just add $match at the end.
+      pipeline.push({ $match: { secretTour: { $ne: true } } });
+    }
+  } else {
+    // If $geoNear is not present, add $match as the first stage in the pipeline.
+    if (pipeline[0] && Object.keys(pipeline[0])[0] !== "$match") {
+      // Insert $match at the beginning if it's not already there.
+      pipeline.unshift({ $match: { secretTour: { $ne: true } } });
+    } else if (!pipeline[0]) {
+      // If the pipeline is empty, add $match as the first stage.
+      pipeline.unshift({ $match: { secretTour: { $ne: true } } });
+    }
+  }
+
+  // Update the pipeline with the modified stages.
+  this.pipeline(pipeline);
+  console.log("Modified Pipeline:", this.pipeline());
+
+  // Proceed with the aggregation operation after modifying the pipeline.
   next();
 });
 

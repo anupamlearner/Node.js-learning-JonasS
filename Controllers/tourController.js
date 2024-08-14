@@ -121,4 +121,34 @@ exports.getToursWithin = catchAsync(async (req, res, next) => {
 
 exports.getDistance = catchAsync(async (req, res, next) => {
   const { latLong, unit } = req.params;
+  const [lat, long] = latLong.split(",");
+  const multiplier = unit === "mi" ? 0.000621371 : 0.001;
+
+  if (!lat || !long) {
+    next(new AppError("Please provide in the format lat, long", 400));
+  }
+
+  const distance = await tourModel.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: "point",
+          coordinates: [long * 1, lat * 1],
+        },
+        distanceField: "distance",
+        distanceMultiplier: multiplier,
+      },
+    },
+    {
+      $project: {
+        distance: 1,
+        name: 1,
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    status: "success",
+    data: distance,
+  });
 });
