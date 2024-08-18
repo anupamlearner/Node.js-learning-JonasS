@@ -5,13 +5,21 @@ const helmet = require("helmet"); // Importing helmet for security headers
 const mongoSanitize = require("express-mongo-sanitize"); // Importing mongo-sanitize for data sanitization
 const xss = require("xss-clean"); // Importing xss-clean for preventing XSS attacks
 const hpp = require("hpp"); // Importing hpp for preventing parameter pollution
+const path = require("path"); // Importing path module
 
 const errorHandler = require("./Controllers/errorController"); // Importing error handling controller
 const AppError = require("./utils/appError"); // Importing custom error class
 const tourRoutes = require("./Routes/tourRoutes"); // Importing tour routes
 const userRoutes = require("./Routes/userRoutes"); // Importing user routes
 const reviewRoutes = require("./Routes/reviewRoutes"); // Importing review routes
+
 const app = express(); // Creating express application
+
+app.set("view engine", "pug");
+app.set("views", path.join(__dirname, "views"));
+
+// Serving static files from the 'public' directory
+app.use(express.static(path.join(__dirname, "public")));
 
 // Set Security HTTP Header
 app.use(helmet({ xssFilter: true })); // Applying helmet middleware for security headers
@@ -32,7 +40,6 @@ if (process.env.NODE_ENV === "development") {
 
 // Body Parser Middleware: parsing request data into JSON format
 app.use(express.json()); // Parsing JSON request bodies
-app.use(express.static(`${__dirname}/public`)); // Serving static files from the 'public' directory
 
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
@@ -61,6 +68,9 @@ app.use((req, res, next) => {
 });
 
 // Routes (mounting routers)
+app.get("/", (req, res) => {
+  res.status(200).render("base");
+});
 app.use("/api/v1/tours", tourRoutes); // Using tour routes
 app.use("/api/v1/users", userRoutes); // Using user routes
 app.use("/api/v1/reviews", reviewRoutes); // Using review routes
