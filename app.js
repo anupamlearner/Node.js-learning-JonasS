@@ -69,8 +69,12 @@ app.use((req, res, next) => {
 
 // Routes (mounting routers)
 app.get("/", (req, res) => {
-  res.status(200).render("base");
+  res.status(200).render("base", {
+    tour: "The Forest Hiker",
+    user: "Jonas",
+  });
 });
+
 app.use("/api/v1/tours", tourRoutes); // Using tour routes
 app.use("/api/v1/users", userRoutes); // Using user routes
 app.use("/api/v1/reviews", reviewRoutes); // Using review routes
