@@ -15,7 +15,10 @@ const reviewRoutes = require("./Routes/reviewRoutes"); // Importing review route
 
 const app = express(); // Creating express application
 
+// app.set(settingName, value) --- Configures a setting for Express
+// Set up Pug as the template engine for rendering views
 app.set("view engine", "pug");
+// Specify the directory where the view files (Pug templates) are located
 app.set("views", path.join(__dirname, "views"));
 
 // Serving static files from the 'public' directory
@@ -63,7 +66,8 @@ app.use(
 
 // Middleware to add request time to request object
 app.use((req, res, next) => {
-  req.requestTime = new Date().toISOString(); // Adding request time to request object
+  // Adding request time to request object
+  req.requestTime = new Date().toISOString();
   next(); // Move to the next middleware
 });
 
