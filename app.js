@@ -16,6 +16,7 @@ const reviewRoutes = require("./Routes/reviewRoutes"); // Importing review route
 const app = express(); // Creating express application
 
 // app.set(settingName, value) --- Configures a setting for Express
+
 // Set up Pug as the template engine for rendering views
 app.set("view engine", "pug");
 // Specify the directory where the view files (Pug templates) are located
