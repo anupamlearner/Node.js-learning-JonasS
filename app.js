@@ -72,11 +72,24 @@ app.use((req, res, next) => {
   next(); // Move to the next middleware
 });
 
+//------------------------------------------
 // Routes (mounting routers)
 app.get("/", (req, res) => {
   res.status(200).render("base", {
     tour: "The Forest Hiker",
     user: "Jonas",
+  });
+});
+
+app.get("/overview", (req, res) => {
+  res.status(200).render("overview", {
+    title: "All Tours",
+  });
+});
+
+app.get("/tour", (req, res) => {
+  res.status(200).render("tour", {
+    title: "The Forest Hiker",
   });
 });
 
