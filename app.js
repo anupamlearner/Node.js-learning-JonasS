@@ -9,9 +9,10 @@ const path = require("path"); // Importing path module
 
 const errorHandler = require("./Controllers/errorController"); // Importing error handling controller
 const AppError = require("./utils/appError"); // Importing custom error class
-const tourRoutes = require("./Routes/tourRoutes"); // Importing tour routes
-const userRoutes = require("./Routes/userRoutes"); // Importing user routes
-const reviewRoutes = require("./Routes/reviewRoutes"); // Importing review routes
+const tourRouter = require("./Routes/tourRoutes"); // Importing tour routes
+const userRouter = require("./Routes/userRoutes"); // Importing user routes
+const reviewRouter = require("./Routes/reviewRoutes"); // Importing review routes
+const viewRouter = require("./Routes/viewRoutes"); // Importing view routes
 
 const app = express(); // Creating express application
 
@@ -20,7 +21,7 @@ const app = express(); // Creating express application
 // Set up Pug as the template engine for rendering views
 app.set("view engine", "pug");
 // Specify the directory where the view files (Pug templates) are located
-app.set("views", path.join(__dirname, "views"));
+app.set("views", path.join(__dirname, "Views"));
 
 // Serving static files from the 'public' directory
 app.use(express.static(path.join(__dirname, "public")));
@@ -74,28 +75,10 @@ app.use((req, res, next) => {
 
 //------------------------------------------
 // Routes (mounting routers)
-app.get("/", (req, res) => {
-  res.status(200).render("base", {
-    tour: "The Forest Hiker",
-    user: "Jonas",
-  });
-});
-
-app.get("/overview", (req, res) => {
-  res.status(200).render("overview", {
-    title: "All Tours",
-  });
-});
-
-app.get("/tour", (req, res) => {
-  res.status(200).render("tour", {
-    title: "The Forest Hiker",
-  });
-});
-
-app.use("/api/v1/tours", tourRoutes); // Using tour routes
-app.use("/api/v1/users", userRoutes); // Using user routes
-app.use("/api/v1/reviews", reviewRoutes); // Using review routes
+app.use("/", viewRouter);
+app.use("/api/v1/tours", tourRouter); // Using tour routes
+app.use("/api/v1/users", userRouter); // Using user routes
+app.use("/api/v1/reviews", reviewRouter); // Using review routes
 
 // Handling unhandled routes
 app.all("*", (req, res, next) => {
