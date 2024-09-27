@@ -212,25 +212,42 @@ tourSchema.pre('save', async function preSave(next) {
 });
 */
 
-/* --------------------------------- */
+// ---------------------------------
 // Query Middleware
-/* --------------------------------- */
+// ---------------------------------
+
+// This part runs before any search operation on the tour schema
 tourSchema.pre(/^find/, function (next) {
+  // Ignore secret tours
   this.find({ secretTour: { $ne: true } });
+
+  // Save the current time to check how long the query takes later
   this.start = Date.now();
+
+  // Move to the next step in the process
   next();
 });
 
+// This part also runs before any search operation
 tourSchema.pre(/^find/, function (next) {
+  // Include related guides' information
   this.populate({
-    path: "guides",
-    select: "-__v -passwordChangedAt",
+    path: "guides", // The field we want to include
+    // After this code runs, each tour document will have a 'guides' field
+    // that contains the details of the guides associated with that tour.
+    select: "-__v -passwordChangedAt", // Exclude these fields
   });
+
+  // Move to the next step
   next();
 });
 
+// This part runs after the search operation is complete
 tourSchema.post(/^find/, function (docs, next) {
+  // Log how long the search took
   console.log(`Query took ${Date.now() - this.start} milliseconds`);
+
+  // Move to the next step
   next();
 });
 
