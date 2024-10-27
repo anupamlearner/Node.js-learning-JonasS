@@ -15,7 +15,11 @@ block content
 
         .heading-box
             h1.heading-primary
+<<<<<<< HEAD
                 span= tour.name
+=======
+                span=` ${tour.name} tour`
+>>>>>>> 5d9efa1a80e52b4f7b7d673161797a6478a380f0
             .heading-box__group
                 .heading-box__detail
                     svg.heading-box__icon
@@ -40,6 +44,7 @@ block content
 
                 .overview-box__group
                     h2.heading-secondary.ma-bt-lg Your tour guides
+<<<<<<< HEAD
                     .overview-box__detail
                         img.overview-box__img(src='/img/users/user-19.jpg', alt='Lead guide')
                         span.overview-box__label Lead guide
@@ -66,6 +71,32 @@ block content
         .picture-box
             img.picture-box__img.picture-box__img--3(src='/img/tour-5-3.jpg', alt='The Park Camper Tour 1')
 
+=======
+
+                    each guide in tour.guides
+                        .overview-box__detail
+                            img.overview-box__img(src=`/img/users/${guide.photo}`, alt=`${guide.name}`)
+                            
+                            -if (guide.role === "lead-guide")
+                                span.overview-box__label Lead Guide
+                            -if (guide.role === "guide")
+                                span.overview-box__label Tour Guide
+                            span.overview-box__text=guide.name
+                    
+
+        .description-box
+            h2.heading-secondary.ma-bt-lg=`About ${tour.name} tour`
+            -const paragraphs = tour.description.split('\n');
+            each p in paragraphs
+                p.description__text=p 
+            
+
+    section.section-pictures
+        each img, i in tour.images 
+            .picture-box
+                img.picture-box__img(src=`/img/tours/${img}`, alt=`${tour.name} ${i+1}`, class=`picture-box__img--${i+1}.jpg`)
+       
+>>>>>>> 5d9efa1a80e52b4f7b7d673161797a6478a380f0
     section.section-map
         #map
 
