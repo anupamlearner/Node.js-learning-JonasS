@@ -23,12 +23,12 @@ mongoose
   )
   .then(() => console.log("----> DB Connection Successful"));
 
-console.log("The environment is--->", app.get("env"));
+console.log("The environment is --->", app.get("env"));
 
 // Start Server
 const port = process.env.PORT || 7000;
 const server = app.listen(port, () => {
-  console.log(`Server started @ port ${port} ...`);
+  console.log(`Server started @ PORT ${port} ...`);
 });
 
 process.on("unhandledRejection", (err) => {

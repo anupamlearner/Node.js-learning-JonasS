@@ -76,9 +76,9 @@ app.use((req, res, next) => {
 //------------------------------------------
 // Routes (mounting routers)
 app.use("/", viewRouter);
-app.use("/api/v1/tours", tourRouter); // Using tour routes
-app.use("/api/v1/users", userRouter); // Using user routes
-app.use("/api/v1/reviews", reviewRouter); // Using review routes
+app.use("/api/v1/tours", tourRouter); // Using tour routes for API
+app.use("/api/v1/users", userRouter); // Using user routes for API
+app.use("/api/v1/reviews", reviewRouter); // Using review routes for API
 
 // Handling unhandled routes
 app.all("*", (req, res, next) => {
