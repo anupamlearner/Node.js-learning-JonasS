@@ -10,9 +10,11 @@ block content
                         .card__picture
                             .card__picture-overlay &nbsp;
                             //- NOTE: No maths is happening here. Just a simple, repetitive task.
-                            //- It goes through each tour, 1 by 1, and reads the imageCover property (like "tour-1-cover.jpg").
-                            //- The value is then assigned as the image source for each tour.
-                            //- No maths at all—just displaying the image for each tour.
+                            //- It goes through each tour, 1 by 1, and READS the "imageCover" 
+                            //- property (eg:- imageCover : "tour-1-cover.jpg").
+                            //- The value is then assigned as the image source (SRC) for each tour.
+                            //- same with the ALT attribute.
+                            
                             img.card__picture-img(src=`/img/tours/${tour.imageCover}`, alt=`${tour.name}`)
                         h3.heading-tertirary
                             span= tour.name
